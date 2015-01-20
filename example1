@@ -33,43 +33,34 @@ d_theta=sector/no_lines; % Increment in angle for 90 deg. image
 % Pre-allocate some storage
 image_data=zeros(800,no_lines);
 theta= -sector/2;
-% for i=1:no_lines
-% % Set the focus for this direction
-% xdc_focus (emit_aperture, 0, [70*sin(theta) 0 70*cos(theta)]/1000);
-% xdc_focus (receive_aperture, 0, [70*sin(theta) 0 70*cos(theta)]/1000);
-% % Calculate the received response
-% [v, t1]=calc_scat(emit_aperture, receive_aperture, point_position, 1);
-% % Store the result
-% image_data(1:max(size(v)),i)=v';
-% times(i) = t1;
-% % Steer in another angle
-% theta = theta + d_theta;
-% end
-% Here the display of the data is inserted
-% plot(image_data)
-% imagesc(20*log10(abs(hilbert(image_data))));
-% %colormap gray
-% colorbar
-% title('example 1','FontSize',20)
-
-%%part b
+%make big matrix
+adjusted_data = zeros(10000,no_lines);
 for i=1:no_lines
-    % Set the focus for this direction
+% Set the focus for this direction
 xdc_focus (emit_aperture, 0, [70*sin(theta) 0 70*cos(theta)]/1000);
 xdc_focus (receive_aperture, 0, [70*sin(theta) 0 70*cos(theta)]/1000);
 % Calculate the received response
 [v, t1]=calc_scat(emit_aperture, receive_aperture, point_position, 1);
 % Store the result
 image_data(1:max(size(v)),i)=v';
-times(i) = i;
+times(i) = t1;
+n_vals(i) = times(i)*fs;
+%put in adjusted matrix
+adjusted_data(n_vals(i):(n_vals(i)+1191)-1,i) = image_data(:,i);
 % Steer in another angle
 theta = theta + d_theta;
 end
-
-figure(2);
+%Here the display of the data is inserted
 plot(image_data)
 imagesc(20*log10(abs(hilbert(image_data))));
 %colormap gray
 colorbar
+title('example 1','FontSize',20)
 
 
+%part b
+%n2 = times(2)/fs
+figure(2);
+plot(adjusted_data)
+imagesc(20*log10(abs(hilbert(adjusted_data))));
+title('Corrected Start Times','FontSize',20)
